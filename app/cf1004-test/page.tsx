@@ -1,6 +1,4 @@
 import { cookies } from "next/headers";
-import MultiHeaderTest from "./MultiHeaderTest";
-import ProxyHeaderTest from "./ProxyHeaderTest";
 
 // Opts out of Next.js's Full Route Cache. Per the Launch caching guide, this alone
 // does not change the wire Cache-Control header — Launch's CDN caches strictly on
@@ -28,11 +26,11 @@ export default async function Cf1004TestPage() {
         </h1>
         <p className="text-lg leading-8 text-zinc-600 dark:text-zinc-400">
           Deploy this project on Contentstack Launch, then use the links below
-          to set this domain&apos;s Cookie header to different sizes. The
-          edge function logs the total incoming header size on every request,
-          so you can see the exact byte count once the platform&apos;s own
-          layers push the total past Cloudflare&apos;s limit and it starts
-          failing with <code>HTTP 413 / CF1004</code>.
+          to set this domain&apos;s Cookie header to different sizes. These
+          sizes stay under the threshold that trips{" "}
+          <code>HTTP 413 / CF1004</code> on this deployment, so every request
+          reaches origin and the edge function logs the full incoming header
+          breakdown on each one.
         </p>
 
         <div className="rounded border border-zinc-300 dark:border-zinc-700 p-4 w-full">
@@ -49,7 +47,7 @@ export default async function Cf1004TestPage() {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          {[5, 5.5, 6, 6.5, 7, 7.5, 8].map((kb) => (
+          {[5, 5.5, 6].map((kb) => (
             <a
               key={kb}
               href={`/cf1004-test/add-cookie?kb=${kb}`}
@@ -68,13 +66,8 @@ export default async function Cf1004TestPage() {
           <code>Set-Cookie</code> and redirects back here, so the redirect
           request itself carries the resized header. Check the edge
           function&apos;s logs in the Launch dashboard on each request to see
-          the total header size, the largest header, and — once you pick a
-          size that trips <code>HTTP 413 / CF1004</code> — the last
-          successful size right below it.
+          the total header size and the largest header.
         </p>
-
-        <MultiHeaderTest />
-        <ProxyHeaderTest />
       </main>
     </div>
   );
