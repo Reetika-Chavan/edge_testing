@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { computeHeaderSizeBreakdown } from "@/lib/header-size";
 
 const COOKIE_PREFIX = "cf1004_";
 const CHUNK_BYTES = 1000; // 1KB per cookie
@@ -19,6 +20,17 @@ function publicOrigin(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  // TEMPORARY diagnostic: proxy.ts's "origin" log never appears in Launch's
+  // server logs in production despite working in local dev and being built
+  // successfully (confirmed via `ƒ Proxy (Middleware)` in the deployment
+  // log). This checks whether a Route Handler's own console.log reaches
+  // server logs at all, to isolate whether the gap is specific to Proxy
+  // execution or origin logging in general. Remove once confirmed.
+  console.log(JSON.stringify({
+    checkpoint: "origin-route-handler-test",
+    ...computeHeaderSizeBreakdown(request.headers),
+  }));
+
   const existing = request.cookies
     .getAll()
     .filter((c) => c.name.startsWith(COOKIE_PREFIX));
