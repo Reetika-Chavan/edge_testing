@@ -20,17 +20,6 @@ function publicOrigin(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  // TEMPORARY diagnostic: proxy.ts's "origin" log never appears in Launch's
-  // server logs in production despite working in local dev and being built
-  // successfully (confirmed via `ƒ Proxy (Middleware)` in the deployment
-  // log). This checks whether a Route Handler's own console.log reaches
-  // server logs at all, to isolate whether the gap is specific to Proxy
-  // execution or origin logging in general. Remove once confirmed.
-  console.log(JSON.stringify({
-    checkpoint: "origin-route-handler-test",
-    ...computeHeaderSizeBreakdown(request.headers),
-  }));
-
   const existing = request.cookies
     .getAll()
     .filter((c) => c.name.startsWith(COOKIE_PREFIX));
@@ -59,5 +48,18 @@ export async function GET(request: NextRequest) {
     remainingBytes -= chunkBytes;
     i++;
   }
+
+  // Checkpoint 3 of 4: the actual page/route handler, right before the response
+  // is sent back through Lambda => nginx => cdn edge (checkpoint 4, see
+  // functions/[proxy].edge.js) => browser. App Router page components (page.tsx)
+  // never see their own finalized response headers — only code that builds a
+  // NextResponse directly, like this route handler, can log them. This is also
+  // where the large Set-Cookie headers driving the CF1004 repro actually
+  // originate, so it's the most useful place to log response size.
+  console.log(JSON.stringify({
+    checkpoint: "page",
+    ...computeHeaderSizeBreakdown(response.headers),
+  }));
+
   return response;
 }

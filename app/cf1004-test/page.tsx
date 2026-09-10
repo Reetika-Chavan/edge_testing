@@ -8,8 +8,13 @@ export const dynamic = "force-dynamic";
 const COOKIE_PREFIX = "cf1004_";
 
 export default async function Cf1004TestPage() {
-  // The "origin" checkpoint for this page is logged by proxy.ts, which runs
-  // before this component on every /cf1004-test/* request — see proxy.ts.
+  // The "middleware" (request-header) checkpoint for this page is logged by
+  // proxy.ts, which runs before this component on every /cf1004-test/*
+  // request — see proxy.ts. There's no "page" (response-header) checkpoint
+  // here: App Router page components don't have access to their own
+  // finalized response headers, only route handlers do — see
+  // add-cookie/route.ts, where the large Set-Cookie headers actually
+  // originate anyway.
   const cookieStore = await cookies();
   const all = cookieStore.getAll();
   const testCookies = all.filter((c) => c.name.startsWith(COOKIE_PREFIX));

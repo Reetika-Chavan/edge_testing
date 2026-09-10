@@ -20,7 +20,7 @@ export interface HeaderSizeBreakdown {
 
 const toKB = (bytes: number) => Math.round((bytes / 1024) * 100) / 100;
 
-// Mirrors the categorization in functions/[proxy].edge.js so both checkpoints'
+// Mirrors the categorization in functions/[proxy].edge.js so every checkpoint's
 // numbers are directly comparable: same "name: value\r\n" byte accounting, same
 // launch/application split, same per-header ranking.
 export function computeHeaderSizeBreakdown(headers: Headers): HeaderSizeBreakdown {

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { computeHeaderSizeBreakdown } from "@/lib/header-size";
 
 const COOKIE_PREFIX = "cf1004_";
 
@@ -17,5 +18,13 @@ export async function GET(request: NextRequest) {
   for (const cookie of existing) {
     response.cookies.delete(cookie.name);
   }
+
+  // Checkpoint 3 of 4 — see add-cookie/route.ts for why the response-header
+  // checkpoint lives in route handlers instead of page.tsx.
+  console.log(JSON.stringify({
+    checkpoint: "page",
+    ...computeHeaderSizeBreakdown(response.headers),
+  }));
+
   return response;
 }
