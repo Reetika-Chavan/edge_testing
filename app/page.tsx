@@ -11,9 +11,6 @@ export default function Home() {
           logging header sizes at each hop, since Launch doesn&apos;t log raw
           header content or values for security reasons.
         </p>
-        <a href="/cf1004-test" className="underline">
-          Go to the CF1004 test page
-        </a>
       </main>
     </div>
   );
